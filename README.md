@@ -1,9 +1,9 @@
 # idMolecule2PNG
 
-> **Convierte identificadores químicos (CAS, ChEMBL o SMILES) en imágenes PNG con un clic.**
-> *Powered by Streamlit + RDKit.*
+> Convierte identificadores químicos (CAS, ChEMBL o SMILES) en vistas 2D y 3D interactivas, con datos detallados del compuesto.
+> *Powered by Streamlit, RDKit & py3Dmol.*
 
-![Social preview](./banner.png)
+![Social preview](./banner.png)
 
 ---
 
@@ -11,118 +11,117 @@
 
 👉 [https://idmolecule2png-streamlit.streamlit.app](https://idmolecule2png-streamlit.streamlit.app)
 
-Carga un identificador, elige fondo **Blanco** o **Transparente** y descarga la molécula renderizada en 400 × 400 px.
+---
+
+## ✨ Características
+
+* **Resolución de identificadores** (CAS / ChEMBL / SMILES) → SMILES canónico.
+* **Renderizado 2D** con RDKit: PNG 400×400 px (fondo blanco o transparente).
+* **Viewer 3D interactivo** con py3Dmol: rotación y zoom aplicados sobre coordenadas generadas por RDKit.
+* **Datos del compuesto** en tabla **Propiedad / Valor**: fórmula, peso molecular, nombre IUPAC, InChIKey, SMILES.
+* **Descarga inmediata** de la imagen 2D (`mol.png`).
+* **Cache de datos** con `st.cache_data` para acelerar consultas repetidas a PubChem.
+* **Mínimas dependencias**: Streamlit, rdkit‑pypi, requests, numpy, pillow, py3Dmol.
 
 ---
 
-## ✨ Características
-
-* **Resolución de identificadores** → SMILES usando:
-
-  * PubChem (para CAS)
-  * ChEMBL (para IDs *CHEMBLxxxxx*)
-  * SMILES directos
-* **Renderizado RDKit** a PNG (400 × 400 px).
-* **Fondo blanco/transparente** a elección.
-* **Descarga inmediata** (*mol.png*).
-* Arquitectura minimalista: sólo `streamlit`, `rdkit-pypi`, `requests`.
-
----
-
-## 📦 Instalación local
+## 📦 Instalación local
 
 ```bash
-# 1 – clona el repo
-$ git clone https://github.com/triptalabs/idMolecule2PNG-streamlit.git
-$ cd idMolecule2PNG-streamlit
+# 1. Clona el repositorio
+git clone https://github.com/triptalabs/idMolecule2PNG-streamlit.git
+cd idMolecule2PNG-streamlit
 
-# 2 – crea / activa entorno virtual
-$ python -m venv .venv
-$ source .venv/bin/activate      # Linux/macOS
-# .\.venv\Scripts\Activate.ps1   # Windows
+# 2. Crea y activa un entorno virtual
+python -m venv .venv
+# Windows
+.venv\Scripts\Activate.ps1
+# macOS / Linux
+source .venv/bin/activate
 
-# 3 – instala dependencias runtime
-$ pip install -r requirements.txt
+# 3. Instala dependencias runtime
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
-# 4 – lanza Streamlit
-$ streamlit run ui.py
+---
+
+## 🏃‍♂️ Ejecución
+
+```bash
+streamlit run ui.py
 ```
 
 Abre [http://localhost:8501](http://localhost:8501) en tu navegador.
 
 ---
 
-## 🛠 Desarrollo
+## 🛠 Desarrollo
 
-> Herramientas opcionales para mantener el código limpio.
+Para desarrollo y pruebas:
 
 ```bash
-# dependencias de desarrollo
-$ pip install -r requirements-dev.txt
-
-# hooks de calidad
-$ pre-commit install
-# prueba rápida
-$ pytest -q
+pip install -r requirements-dev.txt
+pre-commit install
+pytest -q
 ```
 
-### Estructura 🚂
+---
+
+## 📁 Estructura del proyecto
 
 ```
-├─ mol2png/          # lógica de negocio
+idMolecule2PNG-streamlit/
+├─ mol2png/            # Lógica de negocio
 │  ├─ __init__.py
-│  ├─ resolver.py    # fetch_smiles()
-│  ├─ draw.py        # mol_to_png_bytes()
-│  └─ config.py
+│  ├─ config.py        # Parámetros y timeouts
+│  ├─ resolver.py      # fetch_smiles()
+│  ├─ draw.py          # mol_to_png_bytes()
+│  └─ info.py          # fetch_compound_info()
 │
-├─ ui.py             # lanzador Streamlit
-├─ requirements.txt  # deps runtime
-├─ requirements-dev.txt
-└─ runtime.txt       # fija Python 3.11 en Streamlit Cloud
+├─ ui.py               # Launcher Streamlit (2D + 3D + tabla)
+├─ requirements.txt    # Dependencias runtime mínimas
+├─ requirements-dev.txt# Dependencias de desarrollo
+└─ runtime.txt         # Python 3.11 para Streamlit Cloud
 ```
 
 ---
 
-## 📄 API interna
+## 📄 API interna
 
-| Función                                                                     | Descripción                                       |
-| --------------------------------------------------------------------------- | ------------------------------------------------- |
-| `fetch_smiles(identifier: str) -> str`                                      | Resuelve CAS / ChEMBL / SMILES a SMILES canónico. |
-| `mol_to_png_bytes(smiles: str, size=(400,400), transparent=False) -> bytes` | Devuelve imagen PNG en memoria.                   |
-
----
-
-## 🌐 Despliegue en Streamlit Cloud
-
-1. **Fork / push** el repo a tu cuenta.
-2. En *Streamlit Community Cloud* → **“New app”**.
-3. Selecciona rama **main** y archivo **`ui.py`** como *Main file*.
-4. ¡Click → Deploy!  Streamlit usará `requirements.txt` y `runtime.txt`.
+| Función                                       | Descripción                                         |
+| --------------------------------------------- | --------------------------------------------------- |
+| `fetch_smiles(identifier: str) -> str`        | Convierte CAS / ChEMBL / SMILES en SMILES canónico. |
+| `fetch_compound_info(smiles: str) -> dict`    | Obtiene datos del compuesto (PubChem).              |
+| `mol_to_png_bytes(smiles, size, transparent)` | Genera imagen PNG RDKit en memoria.                 |
 
 ---
 
-## 🤝 Contribuciones
+## 🌐 Despliegue
 
-Los *pull requests* son bienvenidos. Para cambios mayores, abre primero un issue explicando lo que deseas modificar.
+### Streamlit Cloud
 
-1. Haz un *fork* del proyecto.
-2. Crea tu rama (`git checkout -b feat/nueva-funcionalidad`).
-3. *Commit* → `git commit -m "feat: describe tu cambio"`.
-4. *Push* → `git push origin feat/nueva-funcionalidad`.
-5. Abre un *Pull Request*.
+1. Push a `main` con `ui.py` en la raíz.
+2. Asegúrate de tener `runtime.txt` (`python-3.11`) y `requirements.txt` actualizados.
+3. En Streamlit Community Cloud, selecciona **Main file** = `ui.py` y despliega.
 
----
+### VPS + Nginx
 
-## 📝 Licencia
-
-Distribuido bajo licencia **MIT**. Consulta el archivo [`LICENSE`](./LICENSE) para más información.
+Sigue el **proxy inverso** y **Certbot** descritos en la [Wiki del proyecto](./DEVELOPMENT.md).
 
 ---
 
-## 🙌 Agradecimientos
+## 🤝 Contribuciones
 
-* [**RDKit**](https://www.rdkit.org/) – química en Python.
-* [**Streamlit**](https://streamlit.io/) – apps de datos en minutos.
-* [**PubChem**](https://pubchem.ncbi.nlm.nih.gov/) y [**ChEMBL**](https://www.ebi.ac.uk/chembl/) – datos químicos abiertos.
+Las contribuciones son bienvenidas.
 
-> Proyecto creado con 💡 por **Tripta Labs**.
+1. Haz *fork* del repo.
+2. Crea una rama (`git checkout -b feat/mi-feature`).
+3. Commit con convención: `feat: descripción breve`.
+4. Push y abre *Pull Request*.
+
+---
+
+## 📝 Licencia
+
+Este proyecto está bajo la licencia [MIT](./LICENSE).
